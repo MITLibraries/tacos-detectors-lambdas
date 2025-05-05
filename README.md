@@ -1,6 +1,6 @@
-# python-lambda-template
+# TACOS citation detector
 
-A template repository for creating Python lambda functions.
+A lambda to apply a pre-trained algorithm to predict whether a given search string is in the form of a citation.
 
 ## Repo Setup (delete this section and above after initial function setup)
 
@@ -20,9 +20,14 @@ A template repository for creating Python lambda functions.
    - Create an alert for the prod environment only, with notifications sent to the appropriate team(s).
    - If *not* using Sentry, delete Sentry configuration from my_function.py and test_my_function_.py, and remove sentry_sdk from project dependencies.
 
-# my_function
+# predict
 
-Description of the function/functions.
+This function will perform the following work:
+
+1. Receives a set of parameters (submitted to the lambda via POST)
+2. Loads a pickle file containing a pre-trained machine learning model.
+3. Submits the parameters to the model to generate a binary prediction.
+4. Returns the result of that prediction.
 
 ## Development
 
@@ -39,13 +44,13 @@ Description of the function/functions.
 - Build the container:
 
   ```bash
-  docker build -t my_function:latest .
+  docker build -t predict:latest .
   ```
 
 - Run the default handler for the container:
 
   ```bash
-  docker run -e WORKSPACE=dev -p 9000:8080 my_function:latest
+  docker run -e WORKSPACE=dev -p 9000:8080 predict:latest
   ```
 
 - Post to the container:
@@ -65,7 +70,7 @@ Description of the function/functions.
 If this repo contains multiple lambda functions, you can call any handler you copy into the container (see Dockerfile) by name as part of the `docker run` command:
 
 ```bash
-docker run -p 9000:8080 my_function:latest lambdas.<a-different-module>.lambda_handler
+docker run -p 9000:8080 predict:latest lambdas.<a-different-module>.lambda_handler
 ```
 
 ## Environment Variables
@@ -79,8 +84,4 @@ WORKSPACE=### Set to `dev` for local development, this will be set to `stage` an
 
 ### Optional
 
-_Delete this section if it isn't applicable to the PR._
-
-```shell
-<OPTIONAL_ENV>=### Description for optional environment variable
-```
+_There are no optional ENV at this time._
