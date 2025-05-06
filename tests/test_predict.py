@@ -22,9 +22,9 @@ def test_predict_doesnt_configure_sentry_if_dsn_not_present(caplog, monkeypatch)
 def test_lambda_handler_missing_workspace_env_raises_error(monkeypatch):
     monkeypatch.delenv("WORKSPACE", raising=False)
     with pytest.raises(RuntimeError) as error:
-        predict.lambda_handler({})
+        predict.lambda_handler({}, {})
     assert "Required env variable WORKSPACE is not set" in str(error)
 
 
 def test_predict():
-    assert predict.lambda_handler({}) == "You have successfully called this lambda!"
+    assert predict.lambda_handler({}, {}) == "You have successfully called this lambda!"

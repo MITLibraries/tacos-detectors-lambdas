@@ -23,7 +23,7 @@ else:
     logger.info("No Sentry DSN found, exceptions will not be sent to Sentry")
 
 
-def lambda_handler(event: dict) -> str:
+def lambda_handler(event: dict, _context: dict) -> str:
     if not os.getenv("WORKSPACE"):
         unset_workspace_error_message = "Required env variable WORKSPACE is not set"
         raise RuntimeError(unset_workspace_error_message)
