@@ -1,33 +1,37 @@
 # TACOS citation detector
 
-A lambda to apply a pre-trained algorithm to predict whether a given search string is in the form of a citation.
-
-## Repo Setup (delete this section and above after initial function setup)
-
-1. Rename "my_function" to the desired initial function name across the repo. (May be helpful to do a project-wide find-and-replace).
-2. Update Python version if needed (note: AWS lambda cannot currently support versions higher than 3.9).
-3. Install all dependencies with `make install`  to create initial Pipfile.lock with latest dependency versions.
-4. Add initial function description to README and update initial required ENV variable documentation as needed.
-5. Update license if needed (check app-specific dependencies for licensing terms).
-6. Check Github repository settings:
-   - Confirm repo branch protection settings are correct (see [dev docs](https://mitlibraries.github.io/guides/basics/github.html) for details)
-   - Confirm that all of the following are enabled in the repo's code security and analysis settings:
-      - Dependabot alerts
-      - Dependabot security updates
-      - Secret scanning
-7. Create a Sentry project for the app if needed (we want this for most apps):
-   - Send initial exceptions to Sentry project for dev, stage, and prod environments to create them.
-   - Create an alert for the prod environment only, with notifications sent to the appropriate team(s).
-   - If *not* using Sentry, delete Sentry configuration from my_function.py and test_my_function_.py, and remove sentry_sdk from project dependencies.
-
-# predict
-
-This function will perform the following work:
+A lambda to apply a pre-trained algorithm to predict whether a given search string is in the form of a citation. This
+function will perform the following work:
 
 1. Receives a set of parameters (submitted to the lambda via POST)
 2. Loads a pickle file containing a pre-trained machine learning model.
 3. Submits the parameters to the model to generate a binary prediction.
 4. Returns the result of that prediction.
+
+This lambda's operation is placed in context of our larger discovery ecosystem in the following diagram. The lambda is
+responsible for the shaded region.
+
+```mermaid
+sequenceDiagram
+  participant User
+  participant UI
+  participant Tacos
+  box PaleVioletRed Citation detector
+    participant Lambda
+    participant S3
+  end
+  User->>UI: "popcorn"
+  UI->>Tacos: "popcorn"
+  Tacos-->Tacos: Extract features from "popcorn"
+  Tacos-->Tacos: Load Lambda URL from Config Vars
+  Tacos->>Lambda: {"features": {...}}
+  Lambda-->Lambda: Load S3 address from ENV
+  Lambda-->Lambda: Load default model filename "knn" from ENV
+  Lambda-->>S3: Request "knn" model
+  S3-->>Lambda: pkl file
+  Lambda-->Lambda: Generate prediction
+  Lambda->>Tacos: {"prediction": false}
+```
 
 ## Development
 
@@ -64,14 +68,6 @@ This function will perform the following work:
   ```
   "You have successfully called this lambda!"
   ```
-
-## Running a Specific Handler Locally with Docker
-
-If this repo contains multiple lambda functions, you can call any handler you copy into the container (see Dockerfile) by name as part of the `docker run` command:
-
-```bash
-docker run -p 9000:8080 predict:latest lambdas.<a-different-module>.lambda_handler
-```
 
 ## Environment Variables
 
