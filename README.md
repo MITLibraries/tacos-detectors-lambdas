@@ -1,4 +1,4 @@
-# TACOS citation detector
+# TACOS citation detector (test)
 
 A lambda to apply a pre-trained algorithm to predict whether a given search string is in the form of a citation. This
 function will perform the following work:
