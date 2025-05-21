@@ -15,6 +15,22 @@ def test_lambda_handler_missing_workspace_env_raises_error(monkeypatch):
         predict.lambda_handler({}, {})
 
 
+def test_lambda_handler_with_wrong_secret(wrong_secret_event):
+    """Test lambda_handler with an incorrect challenge secret."""
+    response = predict.lambda_handler(wrong_secret_event, {})
+    assert response["statusCode"] == HTTPStatus.UNAUTHORIZED
+    body = json.loads(response["body"])
+    assert body["error"] == "Challenge secret missing or mismatch"
+
+
+def test_lambda_handler_with_no_secret(no_secret_event):
+    """Test lambda_handler without including a challenge secret."""
+    response = predict.lambda_handler(no_secret_event, {})
+    assert response["statusCode"] == HTTPStatus.BAD_REQUEST
+    body = json.loads(response["body"])
+    assert body["error"][:23] == "Invalid input payload: "
+
+
 def test_lambda_handler_ping_valid(valid_event):
     """Test lambda_handler with a valid HTTP event."""
     response = predict.lambda_handler(valid_event, {})

@@ -18,6 +18,7 @@ Resources:
         # While tests/sam/env.json is required for sensitive env vars, ALL env vars
         # used in the lambda must exist here as well, even just as "..." placeholders.
         Variables:
+          CHALLENGE_SECRET: "..."
           WORKSPACE: "dev"
           WARNING_ONLY_LOGGERS: "asyncio,botocore,urllib3,s3transfer,boto3"
           SENTRY_DSN: "None"
