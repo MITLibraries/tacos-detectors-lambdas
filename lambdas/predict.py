@@ -1,6 +1,5 @@
 import json
 import logging
-import os
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from http import HTTPStatus
@@ -47,10 +46,6 @@ class LambdaProcessor:
     def process_event(self, event: dict, _context: dict) -> dict:
         self.config.check_required_env_vars()
         configure_sentry()
-
-        if not os.getenv("WORKSPACE"):
-            unset_workspace_error_message = "Required env variable WORKSPACE is not set"
-            raise RuntimeError(unset_workspace_error_message)
 
         logger.debug(json.dumps(event))
 

@@ -1,5 +1,6 @@
 import json
 from http import HTTPStatus
+from unittest.mock import patch
 
 import pytest
 
@@ -31,22 +32,6 @@ def test_lambda_handler_with_no_secret(no_secret_event):
     assert body["error"][:23] == "Invalid input payload: "
 
 
-def test_lambda_handler_ping_valid(valid_ping_event):
-    """Test lambda_handler with a valid HTTP event."""
-    response = predict.lambda_handler(valid_ping_event, {})
-    assert response["statusCode"] == HTTPStatus.OK
-    body = json.loads(response["body"])
-    assert body["response"] == "pong"
-
-
-def test_lambda_handler_predict_valid(valid_predict_event):
-    """Test lambda_handler with a valid HTTP event."""
-    response = predict.lambda_handler(valid_predict_event, {})
-    assert response["statusCode"] == HTTPStatus.OK
-    body = json.loads(response["body"])
-    assert body["response"] == "true"
-
-
 def test_lambda_handler_ping_invalid(invalid_event):
     """Test lambda_handler with a invalid HTTP event."""
     response = predict.lambda_handler(invalid_event, {})
@@ -61,3 +46,28 @@ def test_lambda_handler_ping_nonsense(nonsense_event):
     assert response["statusCode"] == HTTPStatus.BAD_REQUEST
     body = json.loads(response["body"])
     assert body["error"][:23] == "Invalid input payload: "
+
+
+def test_lambda_handler_unhandled_exception(valid_ping_event):
+    """Test lambda_handler with an unhandled exception."""
+    with patch("lambdas.predict.PingHandler.handle", side_effect=Exception("Test error")):
+        response = predict.lambda_handler(valid_ping_event, {})
+        assert response["statusCode"] == HTTPStatus.INTERNAL_SERVER_ERROR
+        body = json.loads(response["body"])
+        assert body["error"] == "Test error"
+
+
+def test_lambda_handler_ping_valid(valid_ping_event):
+    """Test lambda_handler with a valid HTTP event."""
+    response = predict.lambda_handler(valid_ping_event, {})
+    assert response["statusCode"] == HTTPStatus.OK
+    body = json.loads(response["body"])
+    assert body["response"] == "pong"
+
+
+def test_lambda_handler_predict_valid(valid_predict_event):
+    """Test lambda_handler with a valid HTTP event."""
+    response = predict.lambda_handler(valid_predict_event, {})
+    assert response["statusCode"] == HTTPStatus.OK
+    body = json.loads(response["body"])
+    assert body["response"] == "true"
