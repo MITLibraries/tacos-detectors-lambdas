@@ -33,6 +33,13 @@ class PingHandler(RequestHandler):
         return {"response": "pong"}
 
 
+class PredictHandler(RequestHandler):
+    """Handle prediction requests."""
+
+    def handle(self, _payload: InputPayload) -> dict:
+        return {"response": "true"}
+
+
 class LambdaProcessor:
     def __init__(self) -> None:
         self.config = CONFIG
@@ -104,9 +111,14 @@ class LambdaProcessor:
             raise RuntimeError(message)
 
     def get_handler(self, action: str) -> RequestHandler:
-        if action == "ping":
-            return PingHandler()
-        raise ValueError(f"Action not recognized: `{action}`")  # noqa: TRY003 EM102
+        match action:
+            case "ping":
+                return PingHandler()
+            case "predict":
+                return PredictHandler()
+            case _:
+                message = f"Action not recognized: `{action}`"
+                raise ValueError(message)
 
     @staticmethod
     def _generate_http_error_response(

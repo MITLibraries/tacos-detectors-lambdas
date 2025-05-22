@@ -31,12 +31,20 @@ def test_lambda_handler_with_no_secret(no_secret_event):
     assert body["error"][:23] == "Invalid input payload: "
 
 
-def test_lambda_handler_ping_valid(valid_event):
+def test_lambda_handler_ping_valid(valid_ping_event):
     """Test lambda_handler with a valid HTTP event."""
-    response = predict.lambda_handler(valid_event, {})
+    response = predict.lambda_handler(valid_ping_event, {})
     assert response["statusCode"] == HTTPStatus.OK
     body = json.loads(response["body"])
     assert body["response"] == "pong"
+
+
+def test_lambda_handler_predict_valid(valid_predict_event):
+    """Test lambda_handler with a valid HTTP event."""
+    response = predict.lambda_handler(valid_predict_event, {})
+    assert response["statusCode"] == HTTPStatus.OK
+    body = json.loads(response["body"])
+    assert body["response"] == "true"
 
 
 def test_lambda_handler_ping_invalid(invalid_event):
