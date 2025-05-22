@@ -16,6 +16,7 @@ CONFIG = Config()
 @dataclass
 class InputPayload:
     action: str
+    challenge_secret: str
 
 
 class RequestHandler(ABC):
@@ -56,7 +57,13 @@ class LambdaProcessor:
                 str(exc), http_status_code=HTTPStatus.BAD_REQUEST
             )
 
-        # Need to validate secret
+        try:
+            self._validate_secret(payload.challenge_secret)
+        except RuntimeError as exc:
+            logger.error(exc)  # noqa: TRY400
+            return self._generate_http_error_response(
+                str(exc), http_status_code=HTTPStatus.UNAUTHORIZED
+            )
 
         try:
             handler = self.get_handler(payload.action)
@@ -86,6 +93,15 @@ class LambdaProcessor:
             raise ValueError(message) from exc
 
         return input_payload
+
+    def _validate_secret(self, challenge_secret: str | None) -> None:
+        """Check that secret passed with lambda invocation matches secret env var."""
+        if (
+            not challenge_secret
+            or challenge_secret.strip() != self.config.CHALLENGE_SECRET
+        ):
+            message = "Challenge secret missing or mismatch"
+            raise RuntimeError(message)
 
     def get_handler(self, action: str) -> RequestHandler:
         if action == "ping":

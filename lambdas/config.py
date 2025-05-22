@@ -10,7 +10,10 @@ logger.setLevel(logging.DEBUG)
 
 
 class Config:
-    REQUIRED_ENV_VARS = ("WORKSPACE",)
+    REQUIRED_ENV_VARS = (
+        "CHALLENGE_SECRET",
+        "WORKSPACE",
+    )
     OPTIONAL_ENV_VARS = ("SENTRY_DSN",)
 
     def __getattr__(self, name: str) -> Any:  # noqa: ANN401

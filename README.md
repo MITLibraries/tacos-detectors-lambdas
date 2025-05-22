@@ -126,6 +126,7 @@ development if so.
 ### Required
 
 ```shell
+CHALLENGE_SECRET=### Secret string that is passed as part of lambda invocation payload, and checked before running
 WORKSPACE=### Set to `dev` for local development, this will be set to `stage` and `prod` in those environments by Terraform.
 ```
 

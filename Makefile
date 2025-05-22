@@ -71,4 +71,4 @@ sam-http-run: # Run lambda locally as an HTTP server
 sam-http-ping: # Send curl command to SAM HTTP server
 	curl --location 'http://localhost:3000/foo' \
 	--header 'Content-Type: application\json' \
-	--data '{"action":"ping"}'
+	--data '{"action":"ping", "challenge_secret": "secret_phrase"}'
