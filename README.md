@@ -105,7 +105,7 @@ While lambdas can be invoked via HTTP methods (ALB, Function URL, etc), they are
 invoke the function image directly:
 
 ```shell
-echo '{"action": "ping"}' | sam local invoke --env-vars tests/sam/env.json -e -
+echo '{"action": "ping", "challenge_secret": "secret_phrase"}' | sam local invoke --env-vars tests/sam/env.json -e -
 ```
 
 Response:

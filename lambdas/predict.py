@@ -1,8 +1,11 @@
 import json
 import logging
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from http import HTTPStatus
+from typing import Optional
+
+from jsonschema import ValidationError, validate
 
 from lambdas.config import Config, configure_sentry
 
@@ -16,6 +19,10 @@ CONFIG = Config()
 class InputPayload:
     action: str
     challenge_secret: str
+    features: Optional[dict] = None  # noqa: UP007
+
+    def to_dict(self) -> dict:
+        return {k: v for k, v in asdict(self).items() if v is not None}
 
 
 class RequestHandler(ABC):
@@ -35,7 +42,12 @@ class PingHandler(RequestHandler):
 class PredictHandler(RequestHandler):
     """Handle prediction requests."""
 
-    def handle(self, _payload: InputPayload) -> dict:
+    def handle(self, payload: InputPayload) -> dict:
+        # validate payload against a JSONSchema
+        with open("lambdas/schemas/features_schema.json") as f:
+            schema = json.load(f)
+        logger.info(payload.to_dict())
+        validate(instance=payload.to_dict(), schema=schema)
         return {"response": "true"}
 
 
@@ -53,7 +65,7 @@ class LambdaProcessor:
 
         try:
             payload = self._parse_payload(event)
-        except ValueError as exc:
+        except (ValueError, ValidationError) as exc:
             logger.error(exc)  # noqa: TRY400
             return self._generate_http_error_response(
                 str(exc), http_status_code=HTTPStatus.BAD_REQUEST
@@ -71,7 +83,7 @@ class LambdaProcessor:
             handler = self.get_handler(payload.action)
             result = handler.handle(payload)
             return self._generate_http_success_response(result)
-        except ValueError as exc:
+        except (ValueError, ValidationError) as exc:
             return self._generate_http_error_response(
                 str(exc),
                 http_status_code=HTTPStatus.BAD_REQUEST,

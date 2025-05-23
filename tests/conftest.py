@@ -22,7 +22,28 @@ def valid_ping_event():
 def valid_predict_event():
     """Valid event payload for an HTTP invocation."""
     return {
-        "body": json.dumps({"action": "predict", "challenge_secret": "secret_phrase"}),
+        "body": json.dumps(
+            {
+                "action": "predict",
+                "challenge_secret": "secret_phrase",
+                "features": {
+                    "apa": 0,
+                    "brackets": 0,
+                    "colons": 0,
+                    "commas": 0,
+                    "lastnames": 0,
+                    "no": 0,
+                    "pages": 0,
+                    "periods": 0,
+                    "pp": 0,
+                    "quotes": 0,
+                    "semicolons": 0,
+                    "vol": 0,
+                    "words": 0,
+                    "year": 0,
+                },
+            }
+        ),
         "requestContext": {"http": {"method": "POST"}},
     }
 
@@ -55,9 +76,69 @@ def nonsense_event():
 
 
 @pytest.fixture
-def invalid_event():
+def invalid_action_event():
     """Invalid event payload for an HTTP invocation."""
     return {
         "body": json.dumps({"action": "invalid", "challenge_secret": "secret_phrase"}),
+        "requestContext": {"http": {"method": "POST"}},
+    }
+
+
+@pytest.fixture
+def invalid_predict_event_missing():
+    """Invalid event payload (required apa parameter is missing)."""
+    return {
+        "body": json.dumps(
+            {
+                "action": "predict",
+                "challenge_secret": "secret_phrase",
+                "features": {
+                    "brackets": 0,
+                    "colons": 0,
+                    "commas": 0,
+                    "lastnames": 0,
+                    "no": 0,
+                    "pages": 0,
+                    "periods": 0,
+                    "pp": 0,
+                    "quotes": 0,
+                    "semicolons": 0,
+                    "vol": 0,
+                    "words": 0,
+                    "year": 0,
+                },
+            }
+        ),
+        "requestContext": {"http": {"method": "POST"}},
+    }
+
+
+@pytest.fixture
+def invalid_predict_event_extra():
+    """Invalid event payload ("extra" parameter is not supported)."""
+    return {
+        "body": json.dumps(
+            {
+                "action": "predict",
+                "challenge_secret": "secret_phrase",
+                "features": {
+                    "apa": 0,
+                    "brackets": 0,
+                    "colons": 0,
+                    "commas": 0,
+                    "extra": 0,
+                    "lastnames": 0,
+                    "no": 0,
+                    "pages": 0,
+                    "periods": 0,
+                    "pp": 0,
+                    "quotes": 0,
+                    "semicolons": 0,
+                    "vol": 0,
+                    "words": 0,
+                    "year": 0,
+                },
+            }
+        ),
         "requestContext": {"http": {"method": "POST"}},
     }
