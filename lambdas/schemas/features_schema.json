@@ -1,0 +1,82 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "required": [
+    "action",
+    "challenge_secret",
+    "features"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "action": {
+      "type": "string"
+    },
+    "challenge_secret": {
+      "type": "string"
+    },
+    "features": {
+      "type": "object",
+      "required": [
+        "apa",
+        "brackets",
+        "colons",
+        "commas",
+        "lastnames",
+        "no",
+        "pages",
+        "periods",
+        "pp",
+        "quotes",
+        "semicolons",
+        "vol",
+        "words",
+        "year"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "apa": {
+          "type": "integer"
+        },
+        "brackets": {
+          "type": "integer"
+        },
+        "colons": {
+          "type": "integer"
+        },
+        "commas": {
+          "type": "integer"
+        },
+        "lastnames": {
+          "type": "integer"
+        },
+        "no": {
+          "type": "integer"
+        },
+        "pages": {
+          "type": "integer"
+        },
+        "periods": {
+          "type": "integer"
+        },
+        "pp": {
+          "type": "integer"
+        },
+        "quotes": {
+          "type": "integer"
+        },
+        "semicolons": {
+          "type": "integer"
+        },
+        "vol": {
+          "type": "integer"
+        },
+        "words": {
+          "type": "integer"
+        },
+        "year": {
+          "type": "integer"
+        }
+      }
+    }
+  }
+}
