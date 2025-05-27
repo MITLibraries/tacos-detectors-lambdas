@@ -3,7 +3,6 @@ import logging
 from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass
 from http import HTTPStatus
-from typing import Optional
 
 from jsonschema import ValidationError, validate
 
@@ -19,7 +18,7 @@ CONFIG = Config()
 class InputPayload:
     action: str
     challenge_secret: str
-    features: Optional[dict] = None  # noqa: UP007
+    features: dict | None = None
 
     def to_dict(self) -> dict:
         return {k: v for k, v in asdict(self).items() if v is not None}
@@ -46,7 +45,7 @@ class PredictHandler(RequestHandler):
         # validate payload against a JSONSchema
         with open("lambdas/schemas/features_schema.json") as f:
             schema = json.load(f)
-        logger.info(payload.to_dict())
+        logger.debug(payload.to_dict())
         validate(instance=payload.to_dict(), schema=schema)
         return {"response": "true"}
 
