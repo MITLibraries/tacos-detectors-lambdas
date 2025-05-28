@@ -1,9 +1,10 @@
 import json
 import logging
-import os
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from http import HTTPStatus
+
+from jsonschema import ValidationError, validate
 
 from lambdas.config import Config, configure_sentry
 
@@ -17,6 +18,10 @@ CONFIG = Config()
 class InputPayload:
     action: str
     challenge_secret: str
+    features: dict | None = None
+
+    def to_dict(self) -> dict:
+        return {k: v for k, v in asdict(self).items() if v is not None}
 
 
 class RequestHandler(ABC):
@@ -33,6 +38,18 @@ class PingHandler(RequestHandler):
         return {"response": "pong"}
 
 
+class PredictHandler(RequestHandler):
+    """Handle prediction requests."""
+
+    def handle(self, payload: InputPayload) -> dict:
+        # validate payload against a JSONSchema
+        with open("lambdas/schemas/features_schema.json") as f:
+            schema = json.load(f)
+        logger.debug(payload.to_dict())
+        validate(instance=payload.to_dict(), schema=schema)
+        return {"response": "true"}
+
+
 class LambdaProcessor:
     def __init__(self) -> None:
         self.config = CONFIG
@@ -41,17 +58,13 @@ class LambdaProcessor:
         self.config.check_required_env_vars()
         configure_sentry()
 
-        if not os.getenv("WORKSPACE"):
-            unset_workspace_error_message = "Required env variable WORKSPACE is not set"
-            raise RuntimeError(unset_workspace_error_message)
-
         logger.debug(json.dumps(event))
 
         # Need to handle config
 
         try:
             payload = self._parse_payload(event)
-        except ValueError as exc:
+        except (ValueError, ValidationError) as exc:
             logger.error(exc)  # noqa: TRY400
             return self._generate_http_error_response(
                 str(exc), http_status_code=HTTPStatus.BAD_REQUEST
@@ -69,7 +82,7 @@ class LambdaProcessor:
             handler = self.get_handler(payload.action)
             result = handler.handle(payload)
             return self._generate_http_success_response(result)
-        except ValueError as exc:
+        except (ValueError, ValidationError) as exc:
             return self._generate_http_error_response(
                 str(exc),
                 http_status_code=HTTPStatus.BAD_REQUEST,
@@ -104,9 +117,14 @@ class LambdaProcessor:
             raise RuntimeError(message)
 
     def get_handler(self, action: str) -> RequestHandler:
-        if action == "ping":
-            return PingHandler()
-        raise ValueError(f"Action not recognized: `{action}`")  # noqa: TRY003 EM102
+        match action:
+            case "ping":
+                return PingHandler()
+            case "predict":
+                return PredictHandler()
+            case _:
+                message = f"Action not recognized: `{action}`"
+                raise ValueError(message)
 
     @staticmethod
     def _generate_http_error_response(
