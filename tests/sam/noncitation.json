@@ -1,0 +1,20 @@
+{
+	"action": "predict",
+	"challenge_secret": "secret_phrase",
+	"features": {
+		"apa": 0,
+		"brackets": 0,
+		"colons": 0,
+		"commas": 0,
+		"lastnames": 0,
+		"no": 0,
+		"pages": 0,
+		"periods": 0,
+		"pp": 0,
+		"quotes": 0,
+		"semicolons": 0,
+		"vol": 0,
+		"words": 1,
+		"year": 0
+	}
+}
