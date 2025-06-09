@@ -6,6 +6,9 @@ name = "pypi"
 [packages]
 sentry-sdk = "*"
 jsonschema = "*"
+pandas = "*"
+scikit-learn = "*"
+pandas-stubs = "*"
 
 [dev-packages]
 black = "*"

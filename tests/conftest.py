@@ -19,8 +19,38 @@ def valid_ping_event():
 
 
 @pytest.fixture
-def valid_predict_event():
-    """Valid event payload for an HTTP invocation."""
+def valid_predict_event_citation():
+    """Valid event payload with features extracted from a known citation."""
+    return {
+        "body": json.dumps(
+            {
+                "action": "predict",
+                "challenge_secret": "secret_phrase",
+                "features": {
+                    "apa": 0,
+                    "brackets": 0,
+                    "colons": 0,
+                    "commas": 5,
+                    "lastnames": 4,
+                    "no": 0,
+                    "pages": 0,
+                    "periods": 7,
+                    "pp": 0,
+                    "quotes": 0,
+                    "semicolons": 1,
+                    "vol": 0,
+                    "words": 12,
+                    "year": 0,
+                },
+            }
+        ),
+        "requestContext": {"http": {"method": "POST"}},
+    }
+
+
+@pytest.fixture
+def valid_predict_event_noncitation():
+    """Valid event payload with features extracted from a non-citation."""
     return {
         "body": json.dumps(
             {
@@ -39,7 +69,7 @@ def valid_predict_event():
                     "quotes": 0,
                     "semicolons": 0,
                     "vol": 0,
-                    "words": 0,
+                    "words": 1,
                     "year": 0,
                 },
             }
