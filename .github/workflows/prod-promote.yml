@@ -1,0 +1,27 @@
+### This is the Terraform-generated prod-promote.yml workflow for the       ###
+### tacos-detectors-lambdas-prod repository. If this is a Lambda repo,      ###
+### uncomment the FUNCTION line at the end of the document.                 ###
+
+# checkov:skip=CKV2_GHA_1:The shared workflow contains the permissions constraints
+# NOTE: The above checkov skip command doesn't actually work and this workflow
+#       will always show a checkov warning.
+
+name: Prod Container Promote
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+jobs:
+  deploy:
+    name: Prod Container Promote
+    uses: mitlibraries/.github/.github/workflows/ecr-shared-promote-prod.yml@main
+    secrets: inherit
+    with:
+      AWS_REGION: "us-east-1"
+      GHA_ROLE_STAGE: tacos-detectors-lambdas-gha-stage
+      GHA_ROLE_PROD: tacos-detectors-lambdas-gha-prod
+      ECR_STAGE: "tacos-detectors-lambdas-stage"
+      ECR_PROD: "tacos-detectors-lambdas-prod"
+      FUNCTION: "tacos-detectors-lambdas-prod"
+ 

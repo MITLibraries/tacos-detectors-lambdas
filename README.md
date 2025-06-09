@@ -135,3 +135,8 @@ WORKSPACE=### Set to `dev` for local development, this will be set to `stage` an
 ```shell
 SENTRY_DSN=### If set to a valid Sentry DSN, enables Sentry exception monitoring. This is not needed for local development.
 ```
+
+## Related Assets
+
+- [mitlib-tf-workloads-tacos](https://github.com/MITLibraries/mitlib-tf-workloads-tacos) for the infrastructure that supports this application
+- [mitlib-tf-workloads-ecr](https://github.com/MITLibraries/mitlib-tf-workloads-ecr) for the ECR infrastructure for the container image
