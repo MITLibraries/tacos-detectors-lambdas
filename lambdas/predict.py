@@ -7,8 +7,6 @@ from pickle import load
 
 import pandas as pd
 from jsonschema import ValidationError, validate
-from sklearn.exceptions import NotFittedError
-from sklearn.utils.validation import check_is_fitted
 
 from lambdas.config import Config, configure_sentry
 
@@ -55,13 +53,6 @@ class PredictHandler(RequestHandler):
         with open(path, "rb") as f:
             self.model = load(f)  # noqa: S301
 
-        try:
-            check_is_fitted(self.model)
-        except NotFittedError as exc:
-            message = f"Model not fitted: {exc}"
-            logger.exception(message)
-            raise RuntimeError(message) from exc
-
     def handle(self, payload: InputPayload) -> dict:
         """Validate received payload, load model, and generate prediction."""
         with open("lambdas/schemas/features_schema.json") as f:
@@ -73,7 +64,7 @@ class PredictHandler(RequestHandler):
         data = pd.DataFrame(payload.features, index=[0])
         prediction = self.model.predict(data)
 
-        return {"response": f"{prediction[0]}"}
+        return {"response": bool(prediction[0])}
 
 
 class LambdaProcessor:

@@ -79,12 +79,12 @@ sam-http-run: # Run lambda locally as an HTTP server
 
 sam-http-ping: # Send curl command to SAM HTTP server using the ping action
 	curl --location 'http://localhost:3000/foo' \
-	--header 'Content-Type: application\json' \
+	--header 'Content-Type: application/json' \
 	--data '{"action":"ping", "challenge_secret": "secret_phrase"}'
 
 sam-http-predict: # Send curl command to SAM HTTP server using the predict action (next step - take file argument?)
 	curl --location 'http://localhost:3000/foo' \
-	--header 'Content-Type: application\json' \
+	--header 'Content-Type: application/json' \
 	--data '@$(PAYLOAD)'
 
 ### Terraform-generated Developer Deploy Commands for Dev environment ###

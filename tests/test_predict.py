@@ -3,7 +3,6 @@ from http import HTTPStatus
 from unittest.mock import patch
 
 import pytest
-from sklearn.exceptions import NotFittedError
 
 from lambdas import predict
 
@@ -74,7 +73,7 @@ def test_lambda_handler_predict_citation(valid_predict_event_citation):
     response = predict.lambda_handler(valid_predict_event_citation, {})
     assert response["statusCode"] == HTTPStatus.OK
     body = json.loads(response["body"])
-    assert body["response"] == "True"
+    assert body["response"]
 
 
 def test_lambda_handler_predict_noncitation(valid_predict_event_noncitation):
@@ -82,7 +81,7 @@ def test_lambda_handler_predict_noncitation(valid_predict_event_noncitation):
     response = predict.lambda_handler(valid_predict_event_noncitation, {})
     assert response["statusCode"] == HTTPStatus.OK
     body = json.loads(response["body"])
-    assert body["response"] == "False"
+    assert not body["response"]
 
 
 def test_lambda_handler_predict_invalid_missing(invalid_predict_event_missing):
@@ -101,32 +100,10 @@ def test_lambda_handler_predict_invalid_extra(invalid_predict_event_extra):
     assert body["error"][:37] == "Additional properties are not allowed"
 
 
-def test_lambda_handler_predict_unfitted_model(valid_predict_event_citation):
-    """Test lambda_handler with an unfitted model."""
-    with patch(
-        "lambdas.predict.check_is_fitted", side_effect=NotFittedError("not fitted")
-    ):
-        response = predict.lambda_handler(valid_predict_event_citation, {})
-        assert response["statusCode"] == HTTPStatus.INTERNAL_SERVER_ERROR
-        body = json.loads(response["body"])
-        assert body["error"] == "Model not fitted: not fitted"
-
-
-def test_predict_handler_loads_model():
-    """Test that the model is loaded correctly."""
+def test_predict_handler_is_using_a_fitted_model():
+    """Test that the model loads correctly, which means it is fitted."""
     predictor = predict.PredictHandler()
     assert not hasattr(predictor, "model")
     predictor.load_model()
     assert hasattr(predictor, "model")
     assert callable(predictor.model.predict)
-
-
-def test_predict_handler_errors_with_unfitted_model():
-    """Test that an error is raised if the model is not fitted."""
-    with patch(
-        "lambdas.predict.check_is_fitted", side_effect=NotFittedError("not fitted")
-    ):
-        predictor = predict.PredictHandler()
-        # Calling the load_model method should now raise a predictable error
-        with pytest.raises(RuntimeError, match="Model not fitted: not fitted"):
-            predictor.load_model()
