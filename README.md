@@ -86,15 +86,41 @@ the lambda does not utilize them in request payload.
 
 3. In another terminal, perform an HTTP request via another `Makefile` command:
 
+The server's baseline readiness can be confirmed via the ping action:
 ```shell
 make sam-http-ping
 ```
 
-Response should have an HTTP status of `200` and respond with:
+The response should have an HTTP status of `200` and respond with:
 
 ```json
 {
   "response": "pong"
+}
+```
+
+Actual predictions can be sent in via the predict action:
+
+```shell
+make sam-http-predict
+```
+
+```json
+{
+  "response": "True"
+}
+```
+
+Custom payloads can be found in the `tests/sam` directory, and the default payload overridden via the `PAYLOAD` Makefile
+argument:
+
+```shell
+make sam-http-predict PAYLOAD=tests/sam/noncitation.json
+```
+
+```json
+{
+  "response": "False"
 }
 ```
 
@@ -104,6 +130,7 @@ While lambdas can be invoked via HTTP methods (ALB, Function URL, etc), they are
 `event` payload. To do so with SAM, you do **not** need to first start an HTTP server with `make sam-run`, you can
 invoke the function image directly:
 
+#### Example 1: ping
 ```shell
 echo '{"action": "ping", "challenge_secret": "secret_phrase"}' | sam local invoke --env-vars tests/sam/env.json -e -
 ```
@@ -115,7 +142,23 @@ Response:
 false, "body": "{\"response\": \"pong\"}"}
 ```
 
-As you can see from this response, the lambda is still returning a dictionary that _would_ work for an HTTP response,
+#### Example 2: predict
+
+The JSON files with example payloads in `tests/sam` can be helpful for working with the `predict` action, rather than
+trying to include all features and values directly within an echo command:
+
+```shell
+echo "$(cat tests/sam/citation.json)" | sam local invoke --env-vars tests/sam/env.json -e -
+```
+
+Response:
+
+```text
+{"statusCode": 200, "statusDescription": "200 OK", "headers": {"Content-Type": "application/json"}, "isBase64Encoded":
+false, "body": "{\"response\": \"True\"}"}
+```
+
+As you can see from these responses, the lambda is still returning a dictionary that _would_ work for an HTTP response,
 but is actually just a dictionary with the required information.
 
 It's unknown at this time if this lambda will get invoked via non-HTTP methods, but SAM will be helpful for testing and

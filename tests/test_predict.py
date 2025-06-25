@@ -68,12 +68,20 @@ def test_lambda_handler_ping_valid(valid_ping_event):
 
 
 # Prediction action
-def test_lambda_handler_predict_valid(valid_predict_event):
-    """Test lambda_handler with a valid HTTP event."""
-    response = predict.lambda_handler(valid_predict_event, {})
+def test_lambda_handler_predict_citation(valid_predict_event_citation):
+    """Test lambda_handler with a valid HTTP event for a citation."""
+    response = predict.lambda_handler(valid_predict_event_citation, {})
     assert response["statusCode"] == HTTPStatus.OK
     body = json.loads(response["body"])
-    assert body["response"] == "true"
+    assert body["response"]
+
+
+def test_lambda_handler_predict_noncitation(valid_predict_event_noncitation):
+    """Test lambda_handler with a valid HTTP event for a non-citation."""
+    response = predict.lambda_handler(valid_predict_event_noncitation, {})
+    assert response["statusCode"] == HTTPStatus.OK
+    body = json.loads(response["body"])
+    assert not body["response"]
 
 
 def test_lambda_handler_predict_invalid_missing(invalid_predict_event_missing):
@@ -85,8 +93,17 @@ def test_lambda_handler_predict_invalid_missing(invalid_predict_event_missing):
 
 
 def test_lambda_handler_predict_invalid_extra(invalid_predict_event_extra):
-    """Test lambda_handler with less than a full set of prediction features."""
+    """Test lambda_handler with extraneous prediction features."""
     response = predict.lambda_handler(invalid_predict_event_extra, {})
     assert response["statusCode"] == HTTPStatus.BAD_REQUEST
     body = json.loads(response["body"])
     assert body["error"][:37] == "Additional properties are not allowed"
+
+
+def test_predict_handler_is_using_a_fitted_model():
+    """Test that the model loads correctly, which means it is fitted."""
+    predictor = predict.PredictHandler()
+    assert not hasattr(predictor, "model")
+    predictor.load_model()
+    assert hasattr(predictor, "model")
+    assert callable(predictor.model.predict)

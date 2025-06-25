@@ -1,5 +1,7 @@
 SHELL=/bin/bash
 DATETIME:=$(shell date -u +%Y%m%dT%H%M%SZ)
+PAYLOAD:=tests/sam/citation.json
+
 ### This is the Terraform-generated header for tacos-detectors-lambdas-dev. If  ###
 ###   this is a Lambda repo, uncomment the FUNCTION line below  ###
 ###   and review the other commented lines in the document.     ###
@@ -77,33 +79,13 @@ sam-http-run: # Run lambda locally as an HTTP server
 
 sam-http-ping: # Send curl command to SAM HTTP server using the ping action
 	curl --location 'http://localhost:3000/foo' \
-	--header 'Content-Type: application\json' \
+	--header 'Content-Type: application/json' \
 	--data '{"action":"ping", "challenge_secret": "secret_phrase"}'
 
 sam-http-predict: # Send curl command to SAM HTTP server using the predict action (next step - take file argument?)
 	curl --location 'http://localhost:3000/foo' \
-	--header 'Content-Type: application\json' \
-	--data '{ \
-		"action": "predict", \
-		"challenge_secret": "secret_phrase", \
-		"features": { \
-			"apa": 0, \
-			"brackets": 0, \
-			"colons": 0, \
-			"commas": 0, \
-			"lastnames": 0, \
-			"no": 0, \
-			"pages": 0, \
-			"periods": 0, \
-			"pp": 0, \
-			"quotes": 0, \
-			"semicolons": 0, \
-			"vol": 0, \
-			"words": 0, \
-			"year":0 \
-		} \
-		}'
-
+	--header 'Content-Type: application/json' \
+	--data '@$(PAYLOAD)'
 
 ### Terraform-generated Developer Deploy Commands for Dev environment ###
 dist-dev: ## Build docker container (intended for developer-based manual build)

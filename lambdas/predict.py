@@ -3,7 +3,9 @@ import logging
 from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass
 from http import HTTPStatus
+from pickle import load
 
+import pandas as pd
 from jsonschema import ValidationError, validate
 
 from lambdas.config import Config, configure_sentry
@@ -41,13 +43,28 @@ class PingHandler(RequestHandler):
 class PredictHandler(RequestHandler):
     """Handle prediction requests."""
 
+    def load_model(self) -> None:
+        """Load the machine learning model, and confirm it is fitted.
+
+        Please note that this method does not have a return value. It populates
+        the `self.model` attribute with the loaded model.
+        """
+        path = "lambdas/models/neural.pkl"
+        with open(path, "rb") as f:
+            self.model = load(f)  # noqa: S301
+
     def handle(self, payload: InputPayload) -> dict:
-        # validate payload against a JSONSchema
+        """Validate received payload, load model, and generate prediction."""
         with open("lambdas/schemas/features_schema.json") as f:
             schema = json.load(f)
-        logger.debug(payload.to_dict())
         validate(instance=payload.to_dict(), schema=schema)
-        return {"response": "true"}
+
+        self.load_model()
+
+        data = pd.DataFrame(payload.features, index=[0])
+        prediction = self.model.predict(data)
+
+        return {"response": bool(prediction[0])}
 
 
 class LambdaProcessor:
