@@ -21,7 +21,6 @@
         "brackets",
         "colons",
         "commas",
-        "lastnames",
         "no",
         "pages",
         "periods",
@@ -44,9 +43,6 @@
           "type": "integer"
         },
         "commas": {
-          "type": "integer"
-        },
-        "lastnames": {
           "type": "integer"
         },
         "no": {

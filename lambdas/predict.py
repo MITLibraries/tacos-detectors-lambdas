@@ -49,7 +49,7 @@ class PredictHandler(RequestHandler):
         Please note that this method does not have a return value. It populates
         the `self.model` attribute with the loaded model.
         """
-        path = "lambdas/models/neural.pkl"
+        path = "lambdas/models/knn.pkl"
         with open(path, "rb") as f:
             self.model = load(f)  # noqa: S301
 
