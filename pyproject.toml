@@ -37,6 +37,7 @@ ignore = [
 
     # project-specific
     "C90",
+    "CPY001",
     "D100",
     "D101",
     "D102",
